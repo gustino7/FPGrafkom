@@ -134,12 +134,12 @@
     return xCollision && yCollision && zCollision
   }
 
-  const wayTexture = new THREE.TextureLoader().load('./../asset/linetraffic.jpg')
-  // const emissive = new THREE.TextureLoader().load('./../asset/emissive.jpg')
+  const wayTexture = new THREE.TextureLoader().load('./../asset/roadVect.jpeg')
+  const grass = new THREE.TextureLoader().load('./../asset/grass.jpg')
   loader.load('./../asset/tree.glb', function(glb){
     const tree = glb.scene
     tree.scale.set(1, 1, 1)
-    tree.position.set(-6.3, -1.754, -3)
+    tree.position.set(-6.8, -1.754, -3)
     tree.rotation.y = Math.PI / 2
     scene.add(tree)
   })
@@ -157,15 +157,32 @@
   scene.add(cube)
 
   const groundSkin = new THREE.Mesh(
-    new THREE.BoxGeometry(15, 0.01, 50),
-    new THREE.MeshStandardMaterial({
+    new THREE.BoxGeometry(12, 0.01, 50),
+    new THREE.MeshPhongMaterial({
       map: wayTexture,
-      bumpMap: wayTexture,
-      bumpScale: 3,
+      specular: new THREE.Color(0x050505),
+      shininess: 100,
+      side: THREE.FrontSide,
+      reflectivity: 10,
     })
   )
   groundSkin.position.y = -1.754
   groundSkin.receiveShadow = true
+  
+  grass.magFilter = THREE.NearestFilter;
+  grass.minFilter = THREE.NearestFilter;
+  const grassYard = new THREE.Mesh(
+    new THREE.BoxGeometry(20, 0.01, 50),
+    new THREE.MeshStandardMaterial({
+      map: grass,
+      shininess: 50,
+      bumpMap: grass,
+      bumpScale: 0.1,
+      emissive: 0x00ff00,
+      emissiveIntensity: 0.15,
+    })
+  )
+  grassYard.position.y = -1.8
 
   const ground = new Box({
     width: 10,
@@ -178,9 +195,9 @@
     }
   })
 
-  // ground.receiveShadow = true
   scene.add(ground)
   scene.add(groundSkin)
+  scene.add(grassYard)
 
   const light = new THREE.DirectionalLight(0xffffff, 1)
   light.position.y = 10
@@ -188,7 +205,7 @@
   light.castShadow = true
   scene.add(light)
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.3))
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5))
 
   camera.position.z = 10
 
