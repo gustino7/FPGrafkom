@@ -126,6 +126,125 @@
     }
   }
 
+  class Car extends THREE.Group {
+    constructor({
+      width,
+      height,
+      depth,
+      color = "#ff0000",
+      velocity = { x: 0, y: 0, z: 0 },
+      position = { x: 0, y: 0, z: 0 },
+      zAcceleration = false,
+    }) {
+      super();
+
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(width, height, depth),
+        new THREE.MeshStandardMaterial({ color })
+      );
+      this.add(body);
+
+      // Head Lamp
+      const headlampGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.2, 32);
+      const headlampMaterial = new THREE.MeshStandardMaterial({ color: "#ffffff" });
+      const headLampLeft = new THREE.Mesh(headlampGeometry, headlampMaterial);
+      const headLampRight = new THREE.Mesh(headlampGeometry, headlampMaterial);
+
+      headLampLeft.rotation.x = Math.PI / 2;
+      headLampRight.rotation.x = Math.PI / 2; 
+      headLampLeft.position.set(width / 3, height / 6, -depth / 2);
+      headLampRight.position.set(-width / 3, height / 6, -depth / 2);
+      this.add(headLampLeft);
+      this.add(headLampRight);
+
+      // Wheels
+      const wheelSize = width / 2;
+      const wheelColor = "#000000";
+
+      const frontLeftWheel = new THREE.Mesh(
+        new THREE.BoxGeometry(wheelSize, wheelSize, wheelSize),
+        new THREE.MeshStandardMaterial({ color: wheelColor })
+      );
+      frontLeftWheel.position.set(-width / 2, -height / 4, -depth / 2);
+      this.add(frontLeftWheel);
+
+      const rearLeftWheel = new THREE.Mesh(
+        new THREE.BoxGeometry(wheelSize, wheelSize, wheelSize),
+        new THREE.MeshStandardMaterial({ color: wheelColor })
+      );
+      rearLeftWheel.position.set(-width / 2, -height / 4, depth / 2);
+      this.add(rearLeftWheel);
+
+      const frontRightWheel = new THREE.Mesh(
+        new THREE.BoxGeometry(wheelSize, wheelSize, wheelSize),
+        new THREE.MeshStandardMaterial({ color: wheelColor })
+      );
+      frontRightWheel.position.set(width / 2, -height / 4, -depth / 2);
+      this.add(frontRightWheel);
+
+      const rearRightWheel = new THREE.Mesh(
+        new THREE.BoxGeometry(wheelSize, wheelSize, wheelSize),
+        new THREE.MeshStandardMaterial({ color: wheelColor })
+      );
+      rearRightWheel.position.set(width / 2, -height / 4, depth / 2);
+      this.add(rearRightWheel);
+
+      this.width = width;
+      this.height = height;
+      this.depth = depth;
+
+      this.position.set(position.x, position.y, position.z);
+
+      this.right = this.position.x + this.width / 2;
+      this.left = this.position.x - this.width / 2;
+
+      this.bottom = this.position.y - this.height / 2;
+      this.top = this.position.y + this.height / 2;
+
+      this.front = this.position.z + this.depth / 2;
+      this.back = this.position.z - this.depth / 2;
+
+      this.velocity = velocity;
+      this.gravity = -0.002;
+
+      this.zAcceleration = zAcceleration;
+    }
+
+    updateSides() {
+      this.right = this.position.x + this.width / 2;
+      this.left = this.position.x - this.width / 2;
+
+      this.bottom = this.position.y - this.height / 2;
+      this.top = this.position.y + this.height / 2;
+
+      this.front = this.position.z + this.depth / 2;
+      this.back = this.position.z - this.depth / 2;
+    }
+
+    update(ground) {
+      this.updateSides();
+
+      if (this.zAcceleration) this.velocity.z += 0.0003;
+
+      this.position.x += this.velocity.x;
+      this.position.z += this.velocity.z;
+
+      this.applyGravity(ground);
+    }
+
+    applyGravity(ground) {
+      this.velocity.y += this.gravity;
+
+      // this is where we hit the ground
+      if (boxCollision({ box1: this, box2: ground })) {
+        const friction = 0.5;
+        this.velocity.y *= friction;
+        this.velocity.y = -this.velocity.y;
+      } else this.position.y += this.velocity.y;
+    }
+  }
+
+
   function boxCollision({ box1, box2 }) {
     const xCollision = box1.right >= box2.left && box1.left <= box2.right
     const yCollision = box1.bottom + box1.velocity.y <= box2.top && box1.top >= box2.bottom
@@ -143,10 +262,10 @@
     tree.rotation.y = Math.PI / 2
     scene.add(tree)
   })
-  const cube = new Box({
+  const cube = new Car({
     width: 1,
     height: 1,
-    depth: 1,
+    depth: 1.5,
     velocity: {
       x: 0,
       y: -0.01,
@@ -321,7 +440,7 @@
     if (frames % spawnRate === 0) {
       if (spawnRate > 20) spawnRate -= 20
 
-      const enemy = new Box({
+      const enemy = new Car({
         width: 1,
         height: 1,
         depth: 1,
@@ -338,6 +457,7 @@
         color: 'red',
         zAcceleration: true
       })
+      enemy.rotation.y = Math.PI;
       enemy.castShadow = true
       scene.add(enemy)
       enemies.push(enemy)
