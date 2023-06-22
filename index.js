@@ -35,14 +35,14 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 15, 50);
 
 const renderer = new THREE.WebGLRenderer({
-  // alpha: true,
+  alpha: true,
   antialias: true,
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 // renderer.toneMapping = THREE.ACESFilmicToneMapping;
 // renderer.outputColorSpace = THREE.SRGBColorSpace;
 // renderer.physicalCorrectLights = true;
-// renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = true;
 // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
@@ -58,13 +58,17 @@ light.shadow.mapSize.width = 512;
 light.shadow.mapSize.height = 512;
 light.shadow.camera.near = 0.5;
 light.shadow.camera.far = 500;
-// scene.add(light);
+scene.add(light);
 
 // light kedua
 
 const directLight = new THREE.DirectionalLight(0xffffff, 1);
-directLight.position.y = 30;
-directLight.position.z = 10;
+directLight.shadow.camera.left = -100;
+directLight.shadow.camera.right = 100;
+directLight.shadow.mapSize.width = 1024;
+directLight.shadow.mapSize.height = 1024;
+directLight.position.y = 2;
+directLight.position.z = 15;
 directLight.castShadow = true;
 scene.add(directLight);
 
@@ -244,6 +248,10 @@ class Car extends THREE.Group {
     this.gravity = -0.002;
 
     this.zAcceleration = zAcceleration;
+
+    this.traverse((object) => {
+      object.castShadow = true;
+      });
   }
 
   updateSides() {
@@ -789,13 +797,13 @@ function animate() {
   cube.velocity.x = 0;
   cube.velocity.z = 0;
   if (keys.a.pressed) {
-    if (cube.left <= ground.left) {
+    if (cube.left <= ground.left + 7.5) {
       cube.velocity.x = 0;
     } else {
       cube.velocity.x = -0.05;
     }
   } else if (keys.d.pressed) {
-    if (cube.right >= ground.right) {
+    if (cube.right >= ground.right - 7.5) {
       cube.velocity.x = 0;
     } else {
       cube.velocity.x = 0.05;
