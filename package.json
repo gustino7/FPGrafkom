@@ -1,0 +1,24 @@
+{
+  "name": "fpgrafkom",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gustino7/FPGrafkom.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gustino7/FPGrafkom/issues"
+  },
+  "homepage": "https://github.com/gustino7/FPGrafkom#readme",
+  "dependencies": {
+    "simplex-noise": "^4.0.1",
+    "three": "^0.153.0"
+  }
+}
