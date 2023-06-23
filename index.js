@@ -39,11 +39,8 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
-// renderer.toneMapping = THREE.ACESFilmicToneMapping;
-// renderer.outputColorSpace = THREE.SRGBColorSpace;
-// renderer.physicalCorrectLights = true;
 renderer.shadowMap.enabled = true;
-// renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const light = new THREE.PointLight(
@@ -67,8 +64,8 @@ directLight.shadow.camera.left = -100;
 directLight.shadow.camera.right = 100;
 directLight.shadow.mapSize.width = 1024;
 directLight.shadow.mapSize.height = 1024;
-directLight.position.y = 2;
-directLight.position.z = 15;
+directLight.position.y = 40;
+directLight.position.z = 0;
 directLight.castShadow = true;
 scene.add(directLight);
 
@@ -250,8 +247,8 @@ class Car extends THREE.Group {
     this.zAcceleration = zAcceleration;
 
     this.traverse((object) => {
-      object.castShadow = true;
-      });
+      object.castShadow = true;
+    });
   }
 
   updateSides() {
@@ -595,8 +592,6 @@ function clouds() {
 
     cloudGeo.rotateY(Math.random() * Math.PI * 2);
 
-    // cloudGeo.castShadow = true;
-
     geo = mergeGeometries([geo, cloudGeo]);
   }
 
@@ -646,9 +641,6 @@ for (let i = -5; i <= 5; i++) {
 for (let i = -5; i <= 5; i++) {
   for (let j = -20; j <= 20; j++) {
     let position = tileToPosition(i, j);
-
-    // if (position.length() > 16) continue;
-
     const noise2D = createNoise2D();
 
     // between -1 and +1 and need to be normalize to 0 and 1
@@ -748,7 +740,6 @@ const groundSkin = new THREE.Mesh(
 );
 
 groundSkin.position.y = 0.34;
-// groundSkin.castShadow = true;
 groundSkin.receiveShadow = true;
 scene.add(groundSkin);
 
@@ -759,7 +750,6 @@ const grassYard = new THREE.Mesh(
   new THREE.BoxGeometry(25, 0.01, 65),
   new THREE.MeshStandardMaterial({
     map: grass,
-    // shininess: 50,
     bumpMap: grass,
     bumpScale: 0.1,
     emissive: 0x00ff00,
@@ -767,7 +757,6 @@ const grassYard = new THREE.Mesh(
   })
 );
 grassYard.position.y = 0.3;
-// grassYard.castShadow = true;
 grassYard.receiveShadow = true;
 scene.add(grassYard);
 
@@ -811,13 +800,13 @@ function animate() {
   }
 
   if (keys.s.pressed) {
-    if (cube.back >= 0.5) {
+    if (cube.back >= 20) {
       cube.velocity.z = 0;
     } else {
       cube.velocity.z = 0.05;
     }
   } else if (keys.w.pressed) {
-    if (cube.front <= -15) {
+    if (cube.front <= -20) {
       cube.velocity.z = 0;
     } else {
       cube.velocity.z = -0.05;
@@ -868,5 +857,11 @@ function animate() {
 
   frames++;
 }
+
+window.addEventListener("resize", function () {
+  renderer.setSize(this.window.innerWidth, this.window.innerHeight);
+  camera.aspect = this.window.innerWidth / this.window.innerHeight; // mengatur aspect ratio kamera agar sesuai dengan ukuran layar
+  camera.updateProjectionMatrix(); // mengupdate kamera
+});
 
 animate();
